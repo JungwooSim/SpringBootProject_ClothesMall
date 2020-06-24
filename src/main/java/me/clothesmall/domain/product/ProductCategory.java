@@ -3,6 +3,8 @@ package me.clothesmall.domain.product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import me.clothesmall.config.enum_converter.IsDeletedOfEntityConverter;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "product_category")
 @Entity
 public class ProductCategory {
@@ -22,6 +25,7 @@ public class ProductCategory {
 
     private Integer priority;
 
+    @Convert(converter = IsDeletedOfEntityConverter.class)
     @Column(name = "is_deleted")
     private IsDeletedTypeEnum isDeleted;
 

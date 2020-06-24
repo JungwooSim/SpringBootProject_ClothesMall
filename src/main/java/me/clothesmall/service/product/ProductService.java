@@ -24,10 +24,11 @@ public class ProductService {
 
     @Transactional
     public ApiResponseTemplate<ProductCreateResponseDto> create(ProductCreateRequestDto productCreateRequestDto) {
+        // Todo:: Admin 개발 되면 수정 필요
+        Long AdminId = 1L;
 
-        Admin admin = adminRepository.findById(1L).orElseGet(Admin::new);
+        Admin admin = adminRepository.findById(AdminId).orElseGet(Admin::new);
         ProductCategoryDetail productCategoryDetail = productCategoryDetailRepository.findById(1L).orElseGet(ProductCategoryDetail::new);
-        productCategoryDetail.getProductCategory();
 
         Product saveProduct = Product.builder()
                 .name(productCreateRequestDto.getName())
@@ -55,12 +56,15 @@ public class ProductService {
                 .categoryDetail(productCategoryDetail.getName())
                 .sellingPrice(product.getSellingPrice())
                 .productInformation(product.getProductInformation())
-                .adminName(admin.getName())
+                .adminName(product.getAdmin().getName())
+                .adminId(admin.getId())
                 .status("")
+                .modifiedDate(product.getModifiedDate())
+                .createdDate(product.getCreatedDate())
                 .isDeleted(isDeletedTypeEnum.responseIsDeleted())
                 .build();
 
-        ApiResponseTemplate<ProductCreateResponseDto> response = new ApiResponseTemplate<>(HttpStatus.OK, "OK", productCreateResponseDto);
+        ApiResponseTemplate<ProductCreateResponseDto> response = new ApiResponseTemplate<>(HttpStatus.OK.value(), "OK", productCreateResponseDto);
         return response;
     }
 }

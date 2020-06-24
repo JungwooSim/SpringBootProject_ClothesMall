@@ -47,10 +47,10 @@ public class ProductServiceTest {
 
     @Test
     public void create() {
+        // given
         ProductCreateRequestDto productCreateRequestDto = createProductCreateRequestDto();
         Admin admin = createAdmin();
         ProductCategoryDetail productCategoryDetail = createProductCategoryDetail();
-        ProductCategory productCategory = createProductCategory();
 
         given(adminRepository.findById(1L)).willReturn(Optional.of(admin));
         given(productCategoryDetailRepository.findById(1L)).willReturn(Optional.of(productCategoryDetail));
@@ -71,27 +71,31 @@ public class ProductServiceTest {
 
         given(productRepository.save(product)).willReturn(product);
 
-        IsDeletedTypeEnum isDeletedTypeEnum = IsDeletedTypeEnum.N;
-        isDeletedTypeEnum.responseIsDeleted();
-
-        ProductCreateResponseDto productCreateResponseDtoMock = ProductCreateResponseDto.builder()
+        // when
+        ProductCreateResponseDto productCreateResponseDto = ProductCreateResponseDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .costPrice(product.getCostPrice())
-                .category(productCategory.getName())
+                .category(product.getProductCategoryDetail().getProductCategory().getName())
                 .categoryDetail(productCategoryDetail.getName())
                 .sellingPrice(product.getSellingPrice())
                 .productInformation(product.getProductInformation())
                 .adminName(admin.getName())
+                .adminId(admin.getId())
                 .status("")
-                .isDeleted(isDeletedTypeEnum.responseIsDeleted())
+                .modifiedDate(product.getModifiedDate())
+                .createdDate(product.getCreatedDate())
+                .isDeleted(product.getIsDeleted().responseIsDeleted())
                 .build();
 
-        ApiResponseTemplate<ProductCreateResponseDto> response = new ApiResponseTemplate<ProductCreateResponseDto>(HttpStatus.OK, "OK", productCreateResponseDtoMock);
+        ApiResponseTemplate<ProductCreateResponseDto> response = new ApiResponseTemplate<>(HttpStatus.OK.value(), "OK", productCreateResponseDto);
 
-        ApiResponseTemplate<ProductCreateResponseDto> productCreateResponseDto = productService.create(productCreateRequestDto);
-
-        assertThat(productCreateResponseDto.getMessage(), is("OK"));
+        // then
+        assertThat(product.getIsDeleted(), is(IsDeletedTypeEnum.N));
+        assertThat(response.getMessage(), is("OK"));
+        assertThat(response.getData().getId(), is(1L));
+        assertThat(response.getData().getAdminName(), is("홍길동"));
+        assertThat(response.getData().getIsDeleted(), is(IsDeletedEnum.N));
     }
 
     private ProductCategory createProductCategory() {
@@ -137,7 +141,7 @@ public class ProductServiceTest {
                 .name("홍길동")
                 .email("test@test.com")
                 .phoneNumber("01012345678")
-                .isDeleted(IsDeletedTypeEnum.N)
+//                .isDeleted(IsDeletedTypeEnum.N)
                 .status("")
                 .lastLoginDate(LocalDateTime.now())
                 .modifiedDate(LocalDateTime.now())

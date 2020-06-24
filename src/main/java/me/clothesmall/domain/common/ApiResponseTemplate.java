@@ -12,9 +12,10 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponseTemplate<T> {
-    private HttpStatus code;
+    private Integer code;
     private String message;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
+
 }

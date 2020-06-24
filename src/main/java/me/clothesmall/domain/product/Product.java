@@ -7,6 +7,7 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import me.clothesmall.config.enum_converter.IsDeletedOfEntityConverter;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.domain.admin.Admin;
 
@@ -33,6 +34,7 @@ public class Product {
 
     private String status;
 
+    @Convert(converter = IsDeletedOfEntityConverter.class)
     @Column(name = "is_deleted")
     private IsDeletedTypeEnum isDeleted;
 

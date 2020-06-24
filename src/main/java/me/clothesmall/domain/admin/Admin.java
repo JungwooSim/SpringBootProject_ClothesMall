@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.clothesmall.config.enum_converter.IsDeletedOfEntityConverter;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 
 import javax.persistence.*;
@@ -13,8 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "admin")
-@Entity
+@Entity(name = "admin")
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +31,7 @@ public class Admin {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Convert(converter = IsDeletedOfEntityConverter.class)
     @Column(name = "is_deleted")
     private IsDeletedTypeEnum isDeleted;
 

@@ -7,6 +7,7 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import lombok.NoArgsConstructor;
 import me.clothesmall.config.enum_converter.IsDeletedOfEntityConverter;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.domain.admin.Admin;
@@ -14,6 +15,7 @@ import me.clothesmall.domain.admin.Admin;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "product")
 @Entity
 public class Product {
@@ -51,22 +53,17 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_category_detail_id", referencedColumnName = "id")
     private ProductCategoryDetail productCategoryDetail;
+
+    public void changeContent(
+            String name, Integer costPrice, Integer sellingPrice,
+            String productInformation, String status, Admin admin,
+            ProductCategoryDetail productCategoryDetail) {
+        this.name = name;
+        this.costPrice = costPrice;
+        this.sellingPrice = sellingPrice;
+        this.productInformation = productInformation;
+        this.status = status;
+        this.admin = admin;
+        this.productCategoryDetail = productCategoryDetail;
+    }
 }
-/*
-CREATE TABLE `product` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  `cost_price` int(11) NOT NULL DEFAULT '0',
-  `product_category_detail_id` int(11) NOT NULL,
-  `selling_price` int(11) NOT NULL DEFAULT '0',
-  `product_information` text,
-  `admin_id` int(11) NOT NULL,
-  `status` varchar(10) DEFAULT NULL,
-  `is_deleted` tinyint(9) NOT NULL DEFAULT '1',
-  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `modified_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `FK_product_product_category_detail_id_product_category_detail_id` (`product_category_detail_id`),
-  CONSTRAINT `FK_product_product_category_detail_id_product_category_detail_id` FOREIGN KEY (`product_category_detail_id`) REFERENCES `product_category_detail` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='상품'
- */

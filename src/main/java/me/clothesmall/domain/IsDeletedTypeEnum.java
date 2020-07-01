@@ -1,6 +1,6 @@
 package me.clothesmall.domain;
 
-import me.clothesmall.domain.product.dto.IsDeletedEnum;
+import me.clothesmall.dto.product.IsDeletedEnum;
 
 import java.util.Arrays;
 

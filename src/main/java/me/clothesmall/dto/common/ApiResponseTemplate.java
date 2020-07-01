@@ -1,11 +1,10 @@
-package me.clothesmall.domain.common;
+package me.clothesmall.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Builder
 @Getter
@@ -17,5 +16,4 @@ public class ApiResponseTemplate<T> {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
-
 }

@@ -1,4 +1,4 @@
-package me.clothesmall.domain.product.dto;
+package me.clothesmall.dto.product;
 
 import lombok.Builder;
 import lombok.Getter;

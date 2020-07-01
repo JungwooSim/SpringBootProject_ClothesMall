@@ -1,4 +1,4 @@
-package me.clothesmall.domain.product.dto;
+package me.clothesmall.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -12,17 +12,13 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCreateRequestDto {
-
+public class ProductUpdateRequestDto {
     @NotEmpty(message = "상품명을 입력해주세요.")
     private String name;
 
     @NotEmpty(message = "상품 가격을 입력해주세요.")
     @JsonProperty(value = "cost_price")
     private Integer costPrice;
-
-//    @NotEmpty(message = "상품 카테고리를 입력해주세요.")
-//    private Long category;
 
     @NotEmpty(message = "상품 카테고리 상세를 입력해주세요.")
     @JsonProperty(value = "category_detail")
@@ -43,16 +39,4 @@ public class ProductCreateRequestDto {
 
     @Setter
     private ProductCategoryDetail productCategoryDetail;
-
-    public Product toEntity() {
-        return Product.builder()
-                .name(name)
-                .costPrice(costPrice)
-                .sellingPrice(sellingPrice)
-                .productInformation(productInformation)
-                .status(status)
-                .admin(admin)
-                .productCategoryDetail(productCategoryDetail)
-                .build();
-    };
 }

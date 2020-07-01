@@ -1,4 +1,4 @@
-package me.clothesmall.domain.product.dto;
+package me.clothesmall.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

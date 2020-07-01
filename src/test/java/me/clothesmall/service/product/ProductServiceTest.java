@@ -4,11 +4,9 @@ package me.clothesmall.service.product;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.domain.admin.Admin;
 import me.clothesmall.domain.admin.AdminRepository;
-import me.clothesmall.domain.common.ApiResponseTemplate;
+import me.clothesmall.dto.common.ApiResponseTemplate;
 import me.clothesmall.domain.product.*;
-import me.clothesmall.domain.product.dto.IsDeletedEnum;
-import me.clothesmall.domain.product.dto.ProductCreateRequestDto;
-import me.clothesmall.domain.product.dto.ProductCreateResponseDto;
+import me.clothesmall.dto.product.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,7 +18,9 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 public class ProductServiceTest {
     ProductService productService;
@@ -96,6 +96,75 @@ public class ProductServiceTest {
         assertThat(response.getData().getId(), is(1L));
         assertThat(response.getData().getAdminName(), is("홍길동"));
         assertThat(response.getData().getIsDeleted(), is(IsDeletedEnum.N));
+    }
+
+    @Test
+    public void update() {
+        Long id = 1L;
+        // given
+        ProductUpdateRequestDto productUpdateRequestDto = ProductUpdateRequestDto.builder()
+                .name("상품이름수정")
+                .costPrice(500)
+                .categoryDetail(1L)
+                .sellingPrice(500)
+                .productInformation("상품정보수정")
+                .status("")
+                .build();
+
+        Admin admin = createAdmin();
+        ProductCategoryDetail productCategoryDetail = createProductCategoryDetail();
+
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("상품이름")
+                .costPrice(100)
+                .sellingPrice(100)
+                .productInformation("상품정보")
+                .admin(Admin.builder().build())
+                .productCategoryDetail(ProductCategoryDetail.builder().build())
+                .isDeleted(IsDeletedTypeEnum.N)
+                .build();
+
+        given(productRepository.findById(id)).willReturn(Optional.of(product));
+
+        given(adminRepository.findById(1L)).willReturn(Optional.of(admin));
+        given(productCategoryDetailRepository.findById(1L)).willReturn(Optional.of(productCategoryDetail));
+
+        product.changeContent(
+                productUpdateRequestDto.getName(),
+                productUpdateRequestDto.getCostPrice(),
+                productUpdateRequestDto.getSellingPrice(),
+                productUpdateRequestDto.getProductInformation(),
+                productUpdateRequestDto.getStatus(),
+                productUpdateRequestDto.getAdmin(),
+                productCategoryDetail
+        );
+
+        // update 된것 그대로 받기
+        given(productRepository.save(product)).will(invocation -> {
+            Product updatedProduct = invocation.getArgument(0);
+            return updatedProduct;
+        });
+
+        ProductUpdateResponseDto productUpdateResponseDto = ProductUpdateResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .costPrice(product.getCostPrice())
+                .category(product.getProductCategoryDetail().getProductCategory().getName())
+                .categoryDetail(product.getProductCategoryDetail().getName())
+                .sellingPrice(product.getSellingPrice())
+                .productInformation(product.getProductInformation())
+                .adminId(admin.getId())
+                .adminName(admin.getName())
+                .isDeleted(product.getIsDeleted().responseIsDeleted())
+                .createdDate(product.getCreatedDate())
+                .modifiedDate(product.getModifiedDate())
+                .status(product.getStatus())
+                .build();
+
+        // save가 실행된지 확인
+        assertThat(productUpdateResponseDto.getName(), is(productUpdateRequestDto.getName()));
     }
 
     private ProductCategory createProductCategory() {

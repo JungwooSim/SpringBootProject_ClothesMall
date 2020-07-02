@@ -65,4 +65,8 @@ public class Product {
         this.admin = admin;
         this.productCategoryDetail = productCategoryDetail;
     }
+
+    public void delete() {
+        this.isDeleted = IsDeletedTypeEnum.Y;
+    }
 }

@@ -7,12 +7,14 @@ import me.clothesmall.domain.admin.AdminRepository;
 import me.clothesmall.dto.common.ApiResponseTemplate;
 import me.clothesmall.domain.product.*;
 import me.clothesmall.dto.product.*;
+import me.clothesmall.exception.BusinessException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -239,6 +241,59 @@ public class ProductServiceTest {
 
         assertThat(productListResponseDto.getSize(), is(10));
         assertTrue(productListResponseDto.getDetailContents().size() >= 10);
+    }
+
+    @Test
+    @Transactional
+    public void 삭제() {
+        // given
+        Long id = 1L;
+
+        Admin admin = createAdmin();
+        ProductCategoryDetail productCategoryDetail = createProductCategoryDetail();
+
+        given(adminRepository.findById(1L)).willReturn(Optional.of(admin));
+        given(productCategoryDetailRepository.findById(1L)).willReturn(Optional.of(productCategoryDetail));
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("상품")
+                .costPrice(100)
+                .sellingPrice(100)
+                .productInformation("상품명")
+                .status("")
+                .isDeleted(IsDeletedTypeEnum.N)
+                .modifiedDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
+                .admin(admin)
+                .productCategoryDetail(productCategoryDetail)
+                .build();
+
+        given(productRepository.findById(id)).willReturn(Optional.of(product));
+
+        product.delete();
+
+        ProductDeleteResponseDto productDeleteResponseDto = ProductDeleteResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .costPrice(product.getCostPrice())
+                .category(product.getProductCategoryDetail().getProductCategory().getName())
+                .categoryDetail(product.getProductCategoryDetail().getName())
+                .sellingPrice(product.getSellingPrice())
+                .productInformation(product.getProductInformation())
+                .adminId(admin.getId())
+                .adminName(admin.getName())
+                .isDeleted(product.getIsDeleted().responseIsDeleted())
+                .createdDate(product.getCreatedDate())
+                .modifiedDate(product.getModifiedDate())
+                .status(product.getStatus())
+                .build();
+
+        // when
+        productService.delete(id);
+
+        // then
+        assertThat(productDeleteResponseDto.getIsDeleted(), is(IsDeletedEnum.Y));
     }
 
     private ProductCategory createProductCategory() {

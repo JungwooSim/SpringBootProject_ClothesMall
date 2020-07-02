@@ -55,4 +55,19 @@ public class ProductController {
 
         return ResponseEntity.ok(responseResource);
     }
+
+    @DeleteMapping("/api/product/{id}")
+    public ResponseEntity<ApiResponseTemplate<ProductDeleteResponseDto>> delete(
+            @PathVariable("id") Long id
+    ) {
+        ProductDeleteResponseDto productDeleteResponseDto = productService.delete(id);
+
+        ApiResponseTemplate<ProductDeleteResponseDto> responseResource = ApiResponseTemplate.<ProductDeleteResponseDto>builder()
+                .data(productDeleteResponseDto)
+                .code(HttpStatus.OK.value())
+                .message("OK")
+                .build();
+
+        return ResponseEntity.ok(responseResource);
+    }
 }

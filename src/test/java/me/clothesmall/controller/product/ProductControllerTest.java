@@ -189,4 +189,32 @@ public class ProductControllerTest {
 
         actions.andExpect(status().isOk());
     }
+
+    @Test
+    public void 삭제() throws Exception {
+        // given
+        Long id = 1L;
+        ProductDeleteResponseDto productDeleteResponseDto = ProductDeleteResponseDto.builder()
+                .id(id)
+                .name("상품이름수정")
+                .costPrice(500)
+                .category("상의")
+                .categoryDetail("긴팔")
+                .sellingPrice(500)
+                .productInformation("상품정보수정")
+                .adminId(1)
+                .adminName("홍길동")
+                .isDeleted(IsDeletedEnum.Y)
+                .build();
+
+        given(productService.delete(id)).willReturn(productDeleteResponseDto);
+
+        // when
+        final ResultActions actions = mockMvc.perform(delete("/api/product/{id}", id)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)).andDo(print());
+
+        // then
+        actions.andExpect(status().isOk());
+    }
 }

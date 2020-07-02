@@ -123,7 +123,7 @@ public class ProductService {
                 Sort.by("createdDate").descending()
         );
 
-        Page<Product> productsWithPage = productRepository.findByIsDeleted(IsDeletedTypeEnum.N, pageable);
+        Page<Product> productsWithPage = productRepository.findByIsDeleted(productListRequestDto.getIsDeleted(), pageable);
 
         ArrayList<ProductListDetailContentsDto> productDetailContent = new ArrayList<>();
         productsWithPage.getContent().stream().forEach(
@@ -154,5 +154,30 @@ public class ProductService {
                 .build();
 
         return productListResponseDto;
+    }
+
+    @Transactional
+    public ProductDeleteResponseDto delete(Long id) {
+        Product deleteProduct = productRepository.findById(id).orElseThrow(() -> new BusinessException("유효한 상품이 아닙니다."));
+        deleteProduct.delete();
+
+        Product product = productRepository.save(deleteProduct);
+
+        ProductDeleteResponseDto productDeleteResponseDto = ProductDeleteResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .costPrice(product.getCostPrice())
+                .category(product.getProductCategoryDetail().getProductCategory().getName())
+                .categoryDetail(product.getProductCategoryDetail().getName())
+                .sellingPrice(product.getSellingPrice())
+                .productInformation(product.getProductInformation())
+                .adminId(product.getAdmin().getId())
+                .adminName(product.getAdmin().getName())
+                .isDeleted(product.getIsDeleted().responseIsDeleted())
+                .createdDate(product.getCreatedDate())
+                .modifiedDate(product.getModifiedDate())
+                .status(product.getStatus())
+                .build();
+        return productDeleteResponseDto;
     }
 }

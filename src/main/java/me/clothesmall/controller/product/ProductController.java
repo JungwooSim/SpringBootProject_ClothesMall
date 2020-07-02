@@ -2,10 +2,7 @@ package me.clothesmall.controller.product;
 
 import lombok.RequiredArgsConstructor;
 import me.clothesmall.dto.common.ApiResponseTemplate;
-import me.clothesmall.dto.product.ProductCreateRequestDto;
-import me.clothesmall.dto.product.ProductCreateResponseDto;
-import me.clothesmall.dto.product.ProductUpdateRequestDto;
-import me.clothesmall.dto.product.ProductUpdateResponseDto;
+import me.clothesmall.dto.product.*;
 import me.clothesmall.service.product.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +37,21 @@ public class ProductController {
                     .code(HttpStatus.OK.value())
                     .message("OK")
                     .build();
+
+        return ResponseEntity.ok(responseResource);
+    }
+
+    @GetMapping("/api/products")
+    public ResponseEntity<ApiResponseTemplate<ProductListResponseDto>> list(
+            @Valid @RequestBody ProductListRequestDto productListRequestDto
+            ) {
+
+        ProductListResponseDto productListResponseDto = productService.list(productListRequestDto);
+        ApiResponseTemplate<ProductListResponseDto> responseResource = ApiResponseTemplate.<ProductListResponseDto>builder()
+                .data(productListResponseDto)
+                .code(HttpStatus.OK.value())
+                .message("OK")
+                .build();
 
         return ResponseEntity.ok(responseResource);
     }

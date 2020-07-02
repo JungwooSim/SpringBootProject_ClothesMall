@@ -11,16 +11,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 public class ProductServiceTest {
     ProductService productService;
@@ -142,6 +143,7 @@ public class ProductServiceTest {
         );
 
         // update 된것 그대로 받기
+        // when
         given(productRepository.save(product)).will(invocation -> {
             Product updatedProduct = invocation.getArgument(0);
             return updatedProduct;
@@ -163,8 +165,80 @@ public class ProductServiceTest {
                 .status(product.getStatus())
                 .build();
 
-        // save가 실행된지 확인
+        // then
         assertThat(productUpdateResponseDto.getName(), is(productUpdateRequestDto.getName()));
+    }
+
+    @Test
+    public void list() {
+        // given
+
+        // pageable 셋팅
+        ProductListRequestDto productListRequestDto = ProductListRequestDto.builder()
+                .size(10)
+                .page(0)
+                .isDeleted(IsDeletedTypeEnum.N)
+                .build();
+
+        Pageable pageable = PageRequest.of(
+                productListRequestDto.getPage(),
+                productListRequestDto.getSize(),
+                Sort.by("createdDate").descending()
+        );
+
+        // 리스트 호출
+        ArrayList<Product> productsMock = new ArrayList<>();
+        for (int i = 0; i <= 15; i++) {
+            productsMock.add(
+                    Product.builder()
+                            .id(Long.valueOf(i))
+                            .name("게시판이름")
+                            .costPrice(100)
+                            .sellingPrice(100)
+                            .productInformation("게시판정보")
+                            .status("")
+                            .isDeleted(IsDeletedTypeEnum.N)
+                            .modifiedDate(LocalDateTime.now())
+                            .createdDate(LocalDateTime.now())
+                            .admin(createAdmin())
+                            .productCategoryDetail(createProductCategoryDetail())
+                            .build()
+            );
+        }
+        Page<Product> products = new PageImpl(productsMock, pageable, productsMock.size());
+        given(productRepository.findByIsDeleted(IsDeletedTypeEnum.N, pageable)).willReturn(products);
+
+        ArrayList<ProductListDetailContentsDto> productDetailContent = new ArrayList<>();
+        // 리스트를 리스판스에 매칭
+        products.getContent().stream().forEach(
+                product ->
+                    productDetailContent.add(
+                            ProductListDetailContentsDto.builder()
+                                    .id(product.getId())
+                                    .name(product.getName())
+                                    .costPrice(product.getCostPrice())
+                                    .sellingPrice(product.getSellingPrice())
+                                    .category(product.getProductCategoryDetail().getProductCategory().getName())
+                                    .categoryDetail(product.getProductCategoryDetail().getName())
+                                    .adminId(product.getAdmin().getId())
+                                    .adminName(product.getAdmin().getName())
+                                    .status(product.getStatus())
+                                    .isDeleted(product.getIsDeleted().responseIsDeleted())
+                                    .createdDate(product.getCreatedDate())
+                                    .modifiedDate(product.getModifiedDate())
+                                    .build()
+                    )
+        );
+
+        ProductListResponseDto productListResponseDto = ProductListResponseDto.builder()
+                .page(products.getPageable().getPageNumber())
+                .size(products.getSize())
+                .totalCount(products.getTotalElements())
+                .detailContents(productDetailContent)
+                .build();
+
+        assertThat(productListResponseDto.getSize(), is(10));
+        assertTrue(productListResponseDto.getDetailContents().size() >= 10);
     }
 
     private ProductCategory createProductCategory() {

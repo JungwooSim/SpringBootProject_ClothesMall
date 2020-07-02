@@ -5,22 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.clothesmall.domain.IsDeletedTypeEnum;
 
-import javax.validation.constraints.Size;
+import java.util.ArrayList;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductListRequestDto {
-
+public class ProductListResponseDto {
     private Integer page;
 
-    @Size(max = 20,message = "size는 20 이하로 가능합니다.")
     private Integer size;
 
-    @JsonProperty(value = "is_deleted")
-    private IsDeletedTypeEnum isDeleted = IsDeletedTypeEnum.N;
+    @JsonProperty(value = "total_count")
+    private Long totalCount;
+
+    @JsonProperty(value = "list")
+    private ArrayList<ProductListDetailContentsDto> detailContents;
 }
+
 

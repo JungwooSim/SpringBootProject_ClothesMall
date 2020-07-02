@@ -1,5 +1,6 @@
 package me.clothesmall.controller.product;
 
+import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.dto.common.ApiResponseTemplate;
 import me.clothesmall.dto.product.*;
 import me.clothesmall.service.product.ProductService;
@@ -18,8 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.net.URI;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -166,8 +166,27 @@ public class ProductControllerTest {
         actions.andExpect(status().isOk());
     }
 
-//    @Test
-//    public void 리스트() {
-//
-//    }
+    @Test
+    public void list() throws Exception {
+        ProductListRequestDto productListRequestDto = ProductListRequestDto.builder()
+                .size(10)
+                .page(0)
+                .isDeleted(IsDeletedTypeEnum.N)
+                .build();
+
+        ProductListResponseDto productListResponseDto = ProductListResponseDto.builder().build();
+
+        given(productService.list(productListRequestDto)).willReturn(productListResponseDto);
+
+        final ResultActions actions = mockMvc.perform(get("/api/products")
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\n" +
+                        "    \"page\" : 0,\n" +
+                        "    \"size\" : 10,\n" +
+                        "    \"is_deleted\" : \"Y\"\n" +
+                        "}")).andDo(print());
+
+        actions.andExpect(status().isOk());
+    }
 }

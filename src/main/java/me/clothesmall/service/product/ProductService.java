@@ -4,19 +4,20 @@ import lombok.RequiredArgsConstructor;
 import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.domain.admin.Admin;
 import me.clothesmall.domain.admin.AdminRepository;
-import me.clothesmall.dto.common.ApiResponseTemplate;
 import me.clothesmall.domain.product.*;
-import me.clothesmall.dto.product.ProductCreateRequestDto;
-import me.clothesmall.dto.product.ProductCreateResponseDto;
-import me.clothesmall.dto.product.ProductUpdateRequestDto;
-import me.clothesmall.dto.product.ProductUpdateResponseDto;
+import me.clothesmall.dto.common.ApiResponseTemplate;
+import me.clothesmall.dto.product.*;
 import me.clothesmall.exception.BusinessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Service
@@ -83,7 +84,6 @@ public class ProductService {
         ProductCategoryDetail productCategoryDetail = productCategoryDetailRepository.findById(productUpdateRequestDto.getCategoryDetail()).orElseThrow(
                 () -> new BusinessException("유효하지 않은 상세 카테고리 항목입니다.")
         );
-        ProductCategory productCategory = productCategoryDetail.getProductCategory();
 
         product.changeContent(
                 productUpdateRequestDto.getName(),
@@ -114,5 +114,45 @@ public class ProductService {
                 .build();
 
         return productUpdateResponseDto;
+    }
+
+    public ProductListResponseDto list(ProductListRequestDto productListRequestDto) {
+        Pageable pageable = PageRequest.of(
+                productListRequestDto.getPage(),
+                productListRequestDto.getSize(),
+                Sort.by("createdDate").descending()
+        );
+
+        Page<Product> productsWithPage = productRepository.findByIsDeleted(IsDeletedTypeEnum.N, pageable);
+
+        ArrayList<ProductListDetailContentsDto> productDetailContent = new ArrayList<>();
+        productsWithPage.getContent().stream().forEach(
+                product ->
+                    productDetailContent.add(
+                            ProductListDetailContentsDto.builder()
+                                    .id(product.getId())
+                                    .name(product.getName())
+                                    .costPrice(product.getCostPrice())
+                                    .sellingPrice(product.getSellingPrice())
+                                    .category(product.getProductCategoryDetail().getProductCategory().getName())
+                                    .categoryDetail(product.getProductCategoryDetail().getName())
+                                    .adminId(product.getAdmin().getId())
+                                    .adminName(product.getAdmin().getName())
+                                    .status(product.getStatus())
+                                    .isDeleted(product.getIsDeleted().responseIsDeleted())
+                                    .createdDate(product.getCreatedDate())
+                                    .modifiedDate(product.getModifiedDate())
+                                    .build()
+                    )
+        );
+
+        ProductListResponseDto productListResponseDto = ProductListResponseDto.builder()
+                .page(productsWithPage.getPageable().getPageNumber())
+                .size(productsWithPage.getSize())
+                .totalCount(productsWithPage.getTotalElements())
+                .detailContents(productDetailContent)
+                .build();
+
+        return productListResponseDto;
     }
 }

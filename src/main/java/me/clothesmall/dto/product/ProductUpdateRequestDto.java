@@ -3,7 +3,6 @@ package me.clothesmall.dto.product;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import me.clothesmall.domain.admin.Admin;
-import me.clothesmall.domain.product.Product;
 import me.clothesmall.domain.product.ProductCategoryDetail;
 
 import javax.validation.constraints.NotEmpty;

@@ -1,6 +1,7 @@
 package me.clothesmall.controller.product;
 
 import lombok.RequiredArgsConstructor;
+import me.clothesmall.domain.IsDeletedTypeEnum;
 import me.clothesmall.dto.common.ApiResponseTemplate;
 import me.clothesmall.dto.product.*;
 import me.clothesmall.service.product.ProductService;
@@ -43,8 +44,16 @@ public class ProductController {
 
     @GetMapping("/api/products")
     public ResponseEntity<ApiResponseTemplate<ProductListResponseDto>> list(
-            @Valid @RequestBody ProductListRequestDto productListRequestDto
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "is_Deleted", defaultValue = "N") IsDeletedTypeEnum isDeleted
+//            @Valid @RequestParam ProductListRequestDto productListRequestDto
             ) {
+        ProductListRequestDto productListRequestDto = ProductListRequestDto.builder()
+                .page(page)
+                .size(size)
+                .isDeleted(isDeleted)
+                .build();
 
         ProductListResponseDto productListResponseDto = productService.list(productListRequestDto);
         ApiResponseTemplate<ProductListResponseDto> responseResource = ApiResponseTemplate.<ProductListResponseDto>builder()

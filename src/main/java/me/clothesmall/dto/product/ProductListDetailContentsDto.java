@@ -37,7 +37,9 @@ public class ProductListDetailContentsDto {
     @JsonProperty(value = "is_deleted")
     private IsDeletedEnum isDeleted;
 
+    @JsonProperty(value = "modified_date")
     private LocalDateTime modifiedDate;
 
+    @JsonProperty(value = "created_date")
     private LocalDateTime createdDate;
 }

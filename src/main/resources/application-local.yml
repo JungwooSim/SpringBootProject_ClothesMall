@@ -16,3 +16,6 @@ logging:
         type:
           descriptor:
             sql: trace
+server:
+  tomcat:
+    basedir: ./log/local

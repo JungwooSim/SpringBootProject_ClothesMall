@@ -15,10 +15,10 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class ProductListRequestDto {
 
-    private Integer page;
+    private Integer page = 0;
 
     @Size(max = 20,message = "size는 20 이하로 가능합니다.")
-    private Integer size;
+    private Integer size = 5;
 
     @JsonProperty(value = "is_deleted")
     private IsDeletedTypeEnum isDeleted = IsDeletedTypeEnum.N;
